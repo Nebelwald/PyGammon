@@ -1,0 +1,10 @@
+orientation: vertical
+content:
+  - content: gameboard
+    padding: [0, 1, 0, 0]
+    height: -1
+
+  - content: possible_moves
+
+  - content: message
+    alignment_vertical: bottom
