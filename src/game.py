@@ -8,6 +8,9 @@ from computer_opponent import computer_move
 
 SCREEN = None
 
+PLAYER_TOKEN = 1
+AI_TOKEN = -1
+
 
 def main():
     gameboard = GameBoard()
@@ -16,7 +19,7 @@ def main():
         possible_moves_player = roll_dices()
         player_move(gameboard, possible_moves_player)
 
-        possible_moves_computer = roll_dices()
+        possible_moves_computer = [1, 1, 1, 1]  # roll_dices()
         computer_move(gameboard, possible_moves_computer)
 
 
@@ -29,12 +32,12 @@ def roll_dices():
 
 
 def player_move(gameboard, possible_moves):
-    message = "-"
+    message = ""
 
     while True:
         databinding = {
             "gameboard": str(gameboard),
-            "possible_moves": f"Possible moves: {[f'{move}' for move in sorted(possible_moves)]}",
+            "possible_moves": f"Possible moves: {[str(move) for move in sorted(possible_moves)]}",
             "message": message
         }
 
@@ -57,15 +60,14 @@ def player_move(gameboard, possible_moves):
                 message = f"You cannot move {width} tiles."
                 continue
 
-            if not gameboard.make_move(position, width):
+            if not gameboard.make_move(position, width, PLAYER_TOKEN):
                 message = "Move is invalid."
             else:
-                message = "-"
+                message = ""
                 possible_moves.remove(width)
 
 
 if __name__ == "__main__":
-    global SCREEN
     SCREEN = Screen("game_view.yaml")
 
     Screen.set_size(39, 10)

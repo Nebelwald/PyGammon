@@ -5,6 +5,7 @@ content:
     height: -1
 
   - content: possible_moves
+    height: -1
 
   - content: message
     alignment_vertical: bottom
