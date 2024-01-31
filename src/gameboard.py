@@ -1,5 +1,7 @@
-WHITE = 'white'
-BLACK = 'black'
+WHITE = 'WHITE'
+BLACK = 'BLACK'
+
+COUNT_TOKENS_PER_COLOR = 15
 
 
 class GameBoard:
@@ -20,10 +22,10 @@ class GameBoard:
         }
 
     @property
-    def board(self):
+    def board(self) -> list:
         return self.__board.copy()
 
-    def draw(self, player):
+    def draw(self, player) -> str:
         opponent = BLACK if player == WHITE else WHITE
         char_player = "W" if player == WHITE else "B"
         char_opponent = "B" if player == WHITE else "W"
@@ -58,17 +60,31 @@ class GameBoard:
         line += " ↘13→14→15→16→17→18→19→20→21→22→23→24"
         return line
 
-    def reverse(self):
+    def reverse(self) -> None:
         self.__board = [-number for number in reversed(self.board)]
 
-    def make_move(self, position_old, width, color, possible_moves, is_ai=False):
-        from game import display
+    def get_possible_positions(self, possible_moves, color):
+        if self.beaten[color]:
+            for move in possible_moves:
+                if self.test_move(-1, move, color):
+                    return [-1]
+            return []
+
+        possible_positions = []
+        for i in range(len(self.board)):
+            for move in possible_moves:
+                if self.test_move(i, move, color):
+                    possible_positions.append(i)
+        return possible_positions
+
+    def test_move(self, position_old, width, color):
+        position_new = position_old + width
+
+        def is_beaten_tokens_field(position):
+            return position == -1
 
         def is_position_inside_board(position):
             return 0 <= position < len(self.board)
-
-        def is_position_outside_board(position):
-            return not is_position_inside_board(position)
 
         def is_own_color_on_position(position):
             return is_position_inside_board(position) and self.board[position] > 0
@@ -83,23 +99,20 @@ class GameBoard:
             return is_position_inside_board(position_new) and self.board[position_new] == 0
 
         def verify_old_position() -> bool:
-            if is_position_outside_board(position_old):
+            if is_beaten_tokens_field(position_old) and self.beaten[color]:
+                return True
+
+            if not is_position_inside_board(position_old):
                 return False
 
             if not is_own_color_on_position(position_old):
                 return False
 
-            if self.beaten[color] and position_old != 0:
-                return False
-
             return True
 
         def verify_new_position():
-            if is_position_outside_board(position_new):
-                if are_all_tokens_in_last_section():
-                    return True
-                else:  # not are_all_tokens_in_last_section():
-                    return False
+            if not is_position_inside_board(position_new):
+                return True if are_all_tokens_in_last_section() else False
 
             if is_own_color_on_position(position_new):
                 return True
@@ -112,36 +125,47 @@ class GameBoard:
 
             return False
 
-        def do_move():
-            self.__board[position_old] -= 1
+        return verify_old_position() and verify_new_position()
 
-            if is_position_inside_board(position_new):
-                if is_single_opponent_token_on_new_position():
-                    self.__board[position_new] = 1
-                    self.beaten[color_opponent] += 1
+    def make_move(self, position_old, width, color, possible_moves):
+        from game import display, finish
 
-                else:  # is_correct_color_on_position(position_new) or is_new_position_empty()
-                    self.__board[position_new] += 1
+        def is_beaten_tokens_field(position):
+            return position == -1
 
-            else:  # is_new_position_outside_board()
-                self.finished[color] += 1
+        def is_position_inside_board(position):
+            return 0 <= position < len(self.board)
+
+        def is_single_opponent_token_on_new_position():
+            return is_position_inside_board(position_new) and self.board[position_new] == -1
 
         color_opponent = BLACK if color is WHITE else WHITE
         position_new = position_old + width
 
-        if not verify_old_position():
+        if not self.test_move(position_old, width, color):
             return False
 
-        if not verify_new_position():
-            return False
+        if is_beaten_tokens_field(position_old):
+            self.beaten[color] -= 1
+        else:
+            self.__board[position_old] -= 1
 
-        do_move()
+        if not is_position_inside_board(position_new):
+            self.finished[color] += 1
 
-        print(f"Player {color}: Moved from {position_old + 1} to {position_new + 1}")
+        elif is_single_opponent_token_on_new_position():
+            self.__board[position_new] = 1
+            self.beaten[color_opponent] += 1
+
+        else:
+            self.__board[position_new] += 1
+
         possible_moves.remove(width)
+
+        print(f"Player {color} moved a token from {position_old + 1} to {position_new + 1}")
         display(self, possible_moves, color)
 
-        if is_ai:
-            input("(ai made it's turn. [Enter] to continue)")
+        if self.finished[color] == COUNT_TOKENS_PER_COLOR:
+            finish(color)
 
         return True

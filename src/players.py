@@ -6,15 +6,18 @@ class PlayerInterface(ABC):
     def __init__(self, color):
         self.color = color
 
-    @abstractmethod
     def make_move(self, gameboard, possible_moves):
+        self._make_move(gameboard, possible_moves)
+
+    @abstractmethod
+    def _make_move(self, gameboard, possible_moves):
         pass
 
 
 class HumanPlayer(PlayerInterface):
     INPUT_REGEX_STRING = "^[1-2]?[0-9],[0-9]$"
 
-    def make_move(self, gameboard, possible_moves):
+    def _make_move(self, gameboard, possible_moves):
         while possible_moves:
             user_input = input("pos,width=")
             match = re.search(HumanPlayer.INPUT_REGEX_STRING, user_input)
@@ -31,21 +34,21 @@ class HumanPlayer(PlayerInterface):
                 print(f"You cannot move {width} tiles.")
                 continue
 
-            if not gameboard.make_move(position, width, self.color, possible_moves.copy()):
+            if not gameboard.make_move(position, width, self.color, possible_moves):
                 print("Move is invalid.")
-            else:
-                possible_moves.remove(width)
 
 
 class AI_AlwaysMoveLastPossibleToken(PlayerInterface):
-    def make_move(self, gameboard, possible_moves):
-        while possible_moves:
+    def _make_move(self, gameboard, possible_moves):
+        while possible_moves and gameboard.get_possible_positions(possible_moves, self.color):
             move = possible_moves[0]
+
+            if gameboard.make_move(-1, move, self.color, possible_moves.copy()):
+                continue
 
             for i, value in enumerate(gameboard.board):
                 if value <= 0:
                     continue
 
-                if gameboard.make_move(i, move, self.color, possible_moves.copy(), True):
-                    possible_moves.remove(move)
+                if gameboard.make_move(i, move, self.color, possible_moves):
                     break
