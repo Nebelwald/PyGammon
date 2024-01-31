@@ -30,14 +30,14 @@ def main():
             gameboard.reverse()
 
 
-def roll_dices():
+def roll_dices() -> list:
     possible_moves = [randint(1, 6), randint(1, 6)]
     if possible_moves[0] == possible_moves[1]:
         possible_moves *= 2
     return sorted(possible_moves)
 
 
-def display(gameboard, possible_moves, color):
+def display(gameboard: GameBoard, possible_moves: list, color: str) -> None:
     print(f"\n--- ({color} player's point of view) ---")
     print(f"↓ {(BLACK if color == WHITE else WHITE)} player ↓".center(37))
     print(gameboard.draw(color))
@@ -45,7 +45,7 @@ def display(gameboard, possible_moves, color):
     print(f"Possible moves: {[str(move) for move in possible_moves] if possible_moves else '-'}")
 
 
-def finish(color):
+def finish(color) -> None:
     print(f"\nPlayer {color} has won!")
     exit()
 

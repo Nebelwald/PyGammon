@@ -6,19 +6,19 @@ class PlayerInterface(ABC):
     def __init__(self, color):
         self.color = color
 
-    def make_move(self, gameboard, possible_moves):
+    def make_move(self, gameboard, possible_moves) -> None:
         self._make_move(gameboard, possible_moves)
 
     @abstractmethod
-    def _make_move(self, gameboard, possible_moves):
+    def _make_move(self, gameboard, possible_moves) -> None:
         pass
 
 
 class HumanPlayer(PlayerInterface):
     INPUT_REGEX_STRING = "^[1-2]?[0-9],[0-9]$"
 
-    def _make_move(self, gameboard, possible_moves):
-        while possible_moves:
+    def _make_move(self, gameboard, possible_moves) -> None:
+        while possible_moves and gameboard.get_possible_positions(possible_moves, self.color):
             user_input = input("pos,width=")
             match = re.search(HumanPlayer.INPUT_REGEX_STRING, user_input)
 
@@ -39,7 +39,7 @@ class HumanPlayer(PlayerInterface):
 
 
 class AI_AlwaysMoveLastPossibleToken(PlayerInterface):
-    def _make_move(self, gameboard, possible_moves):
+    def _make_move(self, gameboard, possible_moves) -> None:
         while possible_moves and gameboard.get_possible_positions(possible_moves, self.color):
             move = possible_moves[0]
 
