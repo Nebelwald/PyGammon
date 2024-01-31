@@ -28,41 +28,34 @@ class GameBoard:
         char_player = "W" if player == WHITE else "B"
         char_opponent = "B" if player == WHITE else "W"
 
-        line = ""
-
         def draw_quarter(fields):
             elements = [f"{abs(element) if element != 0 else ' '}"
                         f"{char_player if element > 0 else (char_opponent if element < 0 else ' ')}"
                         for element in fields]
             return "│".join(elements)
 
-        line += " ↙12←11←10← 9← 8← 7← 6← 5← 4← 3← 2← 1\n"
-        line += "↓╔" + ("═" * 17) + "╦" + ("═" * 17) + "╗\n"
-
+        line = " ↙12←11←10← 9← 8← 7← 6← 5← 4← 3← 2← 1"
+        line += "\n"
+        line += "↓╔" + ("═" * 17) + "╦" + ("═" * 17) + "╗"
+        line += "\n"
         line += "↓"
         line += f"║{draw_quarter(reversed(self.board[6:12]))}"
         line += f"║{draw_quarter(reversed(self.board[:6]))}"
         line += f"║ {str(self.finished[opponent]).rjust(1)}{char_opponent}"
-
         line += "\n"
-
         line += "↓"
-        line += (f"╠" +
-                 f" {self.beaten[player]}{char_player} ".center(17, "═") +
-                 f"╬" +
-                 f" {self.beaten[opponent]}{char_opponent} ".center(17, "═") +
+        line += (f"╠" + f" {self.beaten[player]}{char_player} ".center(17, "═") +
+                 f"╬" + f" {self.beaten[opponent]}{char_opponent} ".center(17, "═") +
                  f"╣")
-
         line += "\n"
-
         line += "↓"
         line += f"║{draw_quarter(self.board[12:18])}"
         line += f"║{draw_quarter(self.board[18:])}"
-        line += f"║ {str(self.finished[player]).rjust(1)}{char_player}\n"
-
-        line += "↓╚" + ("═" * 17) + "╩" + ("═" * 17) + "╝\n"
+        line += f"║ {str(self.finished[player]).rjust(1)}{char_player}"
+        line += "\n"
+        line += "↓╚" + ("═" * 17) + "╩" + ("═" * 17) + "╝"
+        line += "\n"
         line += " ↘13→14→15→16→17→18→19→20→21→22→23→24"
-
         return line
 
     def reverse(self):
