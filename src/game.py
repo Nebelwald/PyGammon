@@ -1,8 +1,7 @@
 from random import randint
 
 from gameboard import GameBoard, BLACK, WHITE
-from ai import AI_AlwaysMoveLastPossibleToken
-from player import HumanPlayer
+from players import AI_AlwaysMoveLastPossibleToken, HumanPlayer
 
 
 def main():
@@ -38,7 +37,7 @@ def roll_dices():
 
 
 def display(gameboard, possible_moves, color):
-    print(f"\n--- ({color} player's point of view) ---")
+    print(f"\n--- ({color.upper()} player's point of view) ---")
     print(f"↓ {(BLACK if color == WHITE else WHITE).upper()} player ↓".center(37))
     print(gameboard.draw(color))
     print(f"↑ {(WHITE if color == WHITE else BLACK).upper()} player ↑".center(37))
