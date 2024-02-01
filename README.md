@@ -55,3 +55,7 @@ The input is entered by
 
 ### "Always move last tokens"
 This AI opponent is a very simple one that follows the policy to always move the last possible token. For each move it can make, it iterates from the last position to the first index and tries to move a token.
+
+## LICENCE
+All rights reserved.
+Copyright (c) 2024, Leonhard Klingert
