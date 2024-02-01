@@ -1,54 +1,57 @@
 from random import randint
 
-from gameboard import GameBoard, BLACK, WHITE
-from players import AI_AlwaysMoveLastPossibleToken, HumanPlayer
-
+from src.gameboard import GameBoard, BLACK, WHITE
+from src.players import AI_AlwaysMoveLastPossibleToken, HumanPlayer
 
 PAUSE = False
 
 
-def main():
-    gameboard = GameBoard()
+class Game:
+    def __init__(self, white_player: str, black_player: str, interactive: bool):
+        def create_player(name_string, color):
+            match name_string:
+                case 'human':
+                    return HumanPlayer(color)
+                case 'ai':
+                    return AI_AlwaysMoveLastPossibleToken(color)
 
-    human_player = AI_AlwaysMoveLastPossibleToken(WHITE)
-    ai = AI_AlwaysMoveLastPossibleToken(BLACK)
+        self.game_board = GameBoard(self)
 
-    players = [human_player, ai]
+        self.players = [
+            create_player(white_player, WHITE),
+            create_player(black_player, BLACK)
+        ]
 
-    while True:
-        for player in players:
-            moves_player = roll_dices()
-            display(gameboard, moves_player, player.color)
+        self.interactive = interactive
 
-            player.make_move(gameboard, moves_player)
+    def start_game(self):
+        def roll_dices() -> list:
+            possible_moves = [randint(1, 6), randint(1, 6)]
+            if possible_moves[0] == possible_moves[1]:
+                possible_moves *= 2
+            return sorted(possible_moves)
 
-            if not type(player) is HumanPlayer and PAUSE:
-                input("(ai made it's turn. [Enter] to continue)")
+        while True:
+            for player in self.players:
+                moves_player = roll_dices()
+                self.display(moves_player, player.color)
 
-            print(f"Switching {BLACK if player.color == WHITE else WHITE} player's pov...")
+                player.make_move(self.game_board, moves_player)
 
-            gameboard.reverse()
+                if not type(player) is HumanPlayer and self.interactive:
+                    input("(ai made it's turn. [Enter] to continue)")
 
+                print(f"Switching {BLACK if player.color == WHITE else WHITE} player's pov...")
 
-def roll_dices() -> list:
-    possible_moves = [randint(1, 6), randint(1, 6)]
-    if possible_moves[0] == possible_moves[1]:
-        possible_moves *= 2
-    return sorted(possible_moves)
+                self.game_board.reverse()
 
+    def display(self, possible_moves: list, color: str) -> None:
+        print(f"\n--- ({color} player's point of view) ---")
+        print(f"↓ {(BLACK if color == WHITE else WHITE)} player ↓".center(37))
+        print(self.game_board.draw(color))
+        print(f"↑ {(WHITE if color == WHITE else BLACK)} player ↑".center(37))
+        print(f"Possible moves: {[str(move) for move in possible_moves] if possible_moves else '-'}")
 
-def display(gameboard: GameBoard, possible_moves: list, color: str) -> None:
-    print(f"\n--- ({color} player's point of view) ---")
-    print(f"↓ {(BLACK if color == WHITE else WHITE)} player ↓".center(37))
-    print(gameboard.draw(color))
-    print(f"↑ {(WHITE if color == WHITE else BLACK)} player ↑".center(37))
-    print(f"Possible moves: {[str(move) for move in possible_moves] if possible_moves else '-'}")
-
-
-def finish(color) -> None:
-    print(f"\nPlayer {color} has won!")
-    exit()
-
-
-if __name__ == "__main__":
-    main()
+    def finish(self, color) -> None:
+        print(f"\nPlayer {color} has won!")
+        exit()
