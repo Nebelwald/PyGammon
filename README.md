@@ -32,17 +32,16 @@ Each match will be logged. The same output that gets written to the terminal get
 ```
 
 ## Gameboard
-```
-            ↓ WHITE player ↓          
+```     
  ↙12←11←10← 9← 8← 7← 6← 5← 4← 3← 2← 1
 ↓╔═════════════════╦═════════════════╗
-↓║5B│  │  │  │3W│  ║5W│  │  │  │  │2B║ 0W
-↓╠═══════ 0B ══════╬═══════ 0W ══════╣
 ↓║5W│  │  │  │3B│  ║5B│  │  │  │  │2W║ 0B
+↓╠═══════ 0W ══════╬═══════ 0B ══════╣
+↓║5B│  │  │  │3W│  ║5W│  │  │  │  │2B║ 0W
 ↓╚═════════════════╩═════════════════╝
  ↘13→14→15→16→17→18→19→20→21→22→23→24
-            ↑ BLACK player ↑
 ```
+The view is always from the WHITE players perspective.
 
 
 ## Player models
