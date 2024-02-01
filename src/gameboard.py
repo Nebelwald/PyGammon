@@ -50,7 +50,7 @@ class GameBoard:
         line += "↓"
         line += f"║{draw_quarter(reversed(self.board[6:12]))}"
         line += f"║{draw_quarter(reversed(self.board[:6]))}"
-        line += f"║ {str(self.finished[WHITE]).rjust(1)}W"
+        line += f"║ {str(self.finished[BLACK]).rjust(1)}B"
         line += "\n"
         line += "↓"
         line += (f"╠" + f" {self.beaten[WHITE]}W ".center(17, "═") +
@@ -60,7 +60,7 @@ class GameBoard:
         line += "↓"
         line += f"║{draw_quarter(self.board[12:18])}"
         line += f"║{draw_quarter(self.board[18:])}"
-        line += f"║ {str(self.finished[BLACK]).rjust(1)}B"
+        line += f"║ {str(self.finished[WHITE]).rjust(1)}W"
         line += "\n"
         line += "↓╚" + ("═" * 17) + "╩" + ("═" * 17) + "╝"
         line += "\n"
