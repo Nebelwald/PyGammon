@@ -1,6 +1,8 @@
 import re
 from abc import ABC, abstractmethod
 
+from src.gameboard import normalise_position
+
 
 class PlayerInterface(ABC):
     def __init__(self, color):
@@ -27,7 +29,7 @@ class HumanPlayer(PlayerInterface):
                 continue
 
             position_width_tuple = match.string.split(",")
-            position = int(position_width_tuple[0]) - 1
+            position = normalise_position(int(position_width_tuple[0]), self.color) - 1
             width = int(position_width_tuple[1])
 
             if width not in possible_moves:
@@ -43,12 +45,9 @@ class AI_AlwaysMoveLastPossibleToken(PlayerInterface):
         while possible_moves and gameboard.get_possible_positions(possible_moves, self.color):
             move = possible_moves[0]
 
-            if gameboard.make_move(-1, move, self.color, possible_moves.copy()):
+            if gameboard.make_move(-1, move, self.color, possible_moves):
                 continue
 
             for i, value in enumerate(gameboard.board):
-                if value <= 0:
-                    continue
-
                 if gameboard.make_move(i, move, self.color, possible_moves):
                     break

@@ -1,7 +1,16 @@
+import logging
+
 WHITE = 'WHITE'
 BLACK = 'BLACK'
 
 COUNT_TOKENS_PER_COLOR = 15
+
+
+# Utility function
+def normalise_position(position_to_normalise, color):
+    if color == BLACK:
+        position_to_normalise = abs(position_to_normalise - 25)
+    return position_to_normalise
 
 
 class GameBoard:
@@ -27,14 +36,10 @@ class GameBoard:
     def board(self) -> list:
         return self.__board.copy()
 
-    def draw(self, color_player: str) -> str:
-        color_opponent = BLACK if color_player == WHITE else WHITE
-        char_player = "W" if color_player == WHITE else "B"
-        char_opponent = "B" if color_player == WHITE else "W"
-
+    def __str__(self) -> str:
         def draw_quarter(fields) -> str:
             elements = [f"{abs(element) if element != 0 else ' '}"
-                        f"{char_player if element > 0 else (char_opponent if element < 0 else ' ')}"
+                        f"{'W' if element > 0 else ('B' if element < 0 else ' ')}"
                         for element in fields]
             return "│".join(elements)
 
@@ -45,17 +50,17 @@ class GameBoard:
         line += "↓"
         line += f"║{draw_quarter(reversed(self.board[6:12]))}"
         line += f"║{draw_quarter(reversed(self.board[:6]))}"
-        line += f"║ {str(self.finished[color_opponent]).rjust(1)}{char_opponent}"
+        line += f"║ {str(self.finished[WHITE]).rjust(1)}W"
         line += "\n"
         line += "↓"
-        line += (f"╠" + f" {self.beaten[color_player]}{char_player} ".center(17, "═") +
-                 f"╬" + f" {self.beaten[color_opponent]}{char_opponent} ".center(17, "═") +
+        line += (f"╠" + f" {self.beaten[WHITE]}W ".center(17, "═") +
+                 f"╬" + f" {self.beaten[BLACK]}B ".center(17, "═") +
                  f"╣")
         line += "\n"
         line += "↓"
         line += f"║{draw_quarter(self.board[12:18])}"
         line += f"║{draw_quarter(self.board[18:])}"
-        line += f"║ {str(self.finished[color_player]).rjust(1)}{char_player}"
+        line += f"║ {str(self.finished[BLACK]).rjust(1)}B"
         line += "\n"
         line += "↓╚" + ("═" * 17) + "╩" + ("═" * 17) + "╝"
         line += "\n"
@@ -107,42 +112,62 @@ class GameBoard:
 
             return False
 
+        if color_player == BLACK:
+            self.reverse()
+
         position_new = position_old + width
-        return verify_old_position() and verify_new_position()
+        result = verify_old_position() and verify_new_position()
+
+        if color_player == BLACK:
+            self.reverse()
+
+        return result
 
     def make_move(self, position_old: int, width: int, color_player: str, possible_moves: list) -> bool:
-        color_opponent = BLACK if color_player is WHITE else WHITE
-        position_new = position_old + width
+        def do_move():
+            color_opponent = BLACK if color_player is WHITE else WHITE
+
+            if self.__is_beaten_tokens_field(position_old):
+                self.beaten[color_player] -= 1
+            else:
+                self.__board[position_old] -= 1
+
+            if not self.__is_position_inside_board(position_new):
+                self.finished[color_player] += 1
+
+            elif self.__is_single_opponent_token_on_position(position_new):
+                self.__board[position_new] = 1
+                self.beaten[color_opponent] += 1
+
+            else:
+                self.__board[position_new] += 1
+
+            possible_moves.remove(width)
 
         if not self.test_move(position_old, width, color_player):
             return False
 
-        if self.__is_beaten_tokens_field(position_old):
-            self.beaten[color_player] -= 1
-        else:
-            self.__board[position_old] -= 1
+        if color_player == BLACK:
+            self.reverse()
 
-        if not self.__is_position_inside_board(position_new):
-            self.finished[color_player] += 1
+        position_new = position_old + width
+        do_move()
 
-        elif self.__is_single_opponent_token_on_position(position_new):
-            self.__board[position_new] = 1
-            self.beaten[color_opponent] += 1
+        if color_player == BLACK:
+            self.reverse()
 
-        else:
-            self.__board[position_new] += 1
-
-        possible_moves.remove(width)
-
-        print(f"Player {color_player} moved a token from {position_old + 1} to {position_new + 1}")
-        self.game.display(possible_moves, color_player)
+        normalised_old = normalise_position(position_old + 1, color_player)
+        normalised_new = normalise_position(position_new + 1, color_player)
+        logging.info(f"Player {color_player} moved a token from {normalised_old} "
+                     f"to {normalised_new} ({width}):")
+        logging.info(str(self))
 
         if self.finished[color_player] == COUNT_TOKENS_PER_COLOR:
             self.game.finish(color_player)
 
         return True
 
-    # The following methods are used to check some properties of the game_board
+    # The following methods are used to check some properties of the game board
     def __is_beaten_tokens_field(self, position: int) -> bool:
         return position == -1
 

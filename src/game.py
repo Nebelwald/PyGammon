@@ -1,3 +1,4 @@
+import logging
 from random import randint
 
 from src.gameboard import GameBoard, BLACK, WHITE
@@ -11,8 +12,10 @@ class Game:
         def create_player(name_string, color):
             match name_string:
                 case 'human':
+                    logging.info(f'Player {color} will be a human.')
                     return HumanPlayer(color)
                 case 'ai':
+                    logging.info(f'Player {color} will be an AI.')
                     return AI_AlwaysMoveLastPossibleToken(color)
 
         self.game_board = GameBoard(self)
@@ -27,31 +30,30 @@ class Game:
     def start_game(self):
         def roll_dices() -> list:
             possible_moves = [randint(1, 6), randint(1, 6)]
-            if possible_moves[0] == possible_moves[1]:
-                possible_moves *= 2
-            return sorted(possible_moves)
+            possible_moves = sorted(possible_moves * 2
+                                    if possible_moves[0] == possible_moves[1]
+                                    else possible_moves)
+            logging.info(f"Possible moves: {possible_moves}")
+            return possible_moves
+
+        logging.info("\nInitial game board:")
+        logging.info(str(self.game_board))
+        logging.info("")
+
+        game_round = 1
 
         while True:
             for player in self.players:
-                moves_player = roll_dices()
-                self.display(moves_player, player.color)
+                logging.info(f"\nRound {game_round}, player {player.color}'s turn ({type(player)})")
 
+                moves_player = roll_dices()
                 player.make_move(self.game_board, moves_player)
 
                 if not type(player) is HumanPlayer and self.interactive:
                     input("(ai made it's turn. [Enter] to continue)")
 
-                print(f"Switching {BLACK if player.color == WHITE else WHITE} player's pov...")
-
-                self.game_board.reverse()
-
-    def display(self, possible_moves: list, color: str) -> None:
-        print(f"\n--- ({color} player's point of view) ---")
-        print(f"↓ {(BLACK if color == WHITE else WHITE)} player ↓".center(37))
-        print(self.game_board.draw(color))
-        print(f"↑ {(WHITE if color == WHITE else BLACK)} player ↑".center(37))
-        print(f"Possible moves: {[str(move) for move in possible_moves] if possible_moves else '-'}")
+            game_round += 1
 
     def finish(self, color) -> None:
-        print(f"\nPlayer {color} has won!")
+        logging.info(f"\nPlayer {color} has won!")
         exit()
