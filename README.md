@@ -2,8 +2,11 @@
 PyGammon is a python implementation of Backgammon.
 The purpose is to create and test different AI models.
 
-## How to call
+## Backgammon rules
+English: https://en.wikipedia.org/wiki/Backgammon#Rules  
+German: https://de.wikipedia.org/wiki/Backgammon#Spielbeginn_und_Spielablauf
 
+## How to call
 ```
 $ python py_gammon.py -h
 usage: py_gammon.py [-h] -w {human,ai} -b {human,ai} [-i]
@@ -23,10 +26,10 @@ e.g.:
 ```
 $ python py_gammon.py -w human -b ai -i
 ```
-Note: As more AI models are implemented, more keywords will be added to select the different AI models.
+Note: As more AI models will be implemented, more keywords will be added to select the different AI models.
 
 ## Logging
-Each match will be logged. The same output that gets written to the terminal gets written to a log file in
+The same output that gets written to the terminal gets written to a log file in
 ```
 <dir/of/py_gammon.py>/log/
 ```
@@ -53,9 +56,9 @@ The input is entered by
 <pos,width>, e.g. 1,2
 ```
 
-### "Always move last tokens"
+### AI model: "Always move last token"
 This AI opponent is a very simple one that follows the policy to always move the last possible token. For each move it can make, it iterates from the last position to the first index and tries to move a token.
 
 ## LICENCE
-All rights reserved.
+All rights reserved.  
 Copyright (c) 2024, Leonhard Klingert
